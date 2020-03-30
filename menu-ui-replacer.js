@@ -15,6 +15,11 @@ export default class MenuUiReplacer extends Plugin {
             copy.menuGfx = customMenuGfx;
             copy.gfx = new ig.Image(menu.gfx);
             this.createIcon(copy);
+            
+            if (menu.circuitIconGfx) {
+                copy.circuitIconGfx = new ig.Image(menu.circuitIconGfx);
+            }
+
             playerMenus.set(copy.name, copy);
         }
 
