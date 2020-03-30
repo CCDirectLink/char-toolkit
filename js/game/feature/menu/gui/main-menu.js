@@ -80,18 +80,18 @@ ig.module("replacer.game.feature.menu.gui.main-menu").requires("game.feature.men
     });
 
     sc.AreaButton.inject({
-        updateDrawables: function(a) {
+        updateDrawables: function(renderer) {
             const currentConfig = customPlayerMenus.get(sc.model.player.name);
             const old = this.gfx;
             if (currentConfig) {
                 this.gfx = currentConfig.menuGfx;
             }
 
-            this.parent(a);
+            this.parent(renderer);
             if (currentConfig && this.activeArea) {
                 const gfx = currentConfig.gfx;
                 const {gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = currentConfig.AreaButton;
-                a.addGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
+                renderer.addGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
             }
             this.gfx = old;
         }
@@ -143,7 +143,7 @@ ig.module("replacer.game.feature.menu.gui.main-menu").requires("game.feature.men
     });
 
 
-    function customStatusDrawables(a) {
+    function customStatusDrawables(renderer) {
         const currentConfig = customPlayerMenus.get(sc.model.player.name);
         if (currentConfig) {
             const old = this.menuGfx;
@@ -151,11 +151,11 @@ ig.module("replacer.game.feature.menu.gui.main-menu").requires("game.feature.men
             ig.BoxGui.prototype.updateDrawables.apply(this, arguments);
             const gfx = currentConfig.gfx;
             const {gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = currentConfig.Head;
-            a.addGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
-            a.addGfx(this.statusGfx, 64, 5, 104, 32 + sc.model.player.currentElementMode * 24, 24, 24);
+            renderer.addGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
+            renderer.addGfx(this.statusGfx, 64, 5, 104, 32 + sc.model.player.currentElementMode * 24, 24, 24);
             this.menuGfx = old;
         } else {
-            this.parent(a);
+            this.parent(renderer);
         }   
     }
 
@@ -206,9 +206,9 @@ ig.module("replacer.game.feature.menu.gui.main-menu").requires("game.feature.men
             this.parent();
             removePlayerObserver(this);
         },
-        modelChanged: function(object, event) {
+        modelChanged: function(instance, event) {
 
-            if (sc.model.player === object) {
+            if (sc.model.player === instance) {
                 this.party.updatePartyLeader();
             } else {
                 this.parent(...arguments);
