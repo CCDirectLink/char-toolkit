@@ -3,5 +3,6 @@
 	"version": "1.0.0",
 	"description": "Add Characters as Party or Players",
 	"plugin": "plugin.js",
-	"postload" : "postload.js"
+	"postload" : "postload.js",
+	"module": true
 }
