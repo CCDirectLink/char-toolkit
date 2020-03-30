@@ -1,4 +1,4 @@
-ig.module("replacer.game.feature.menu.gui.main-menu").requires("game.feature.menu.gui.main-menu").defines(function() {
+ig.module("game.feature.ui-replacer.menu.gui.main-menu").requires("game.feature.menu.gui.main-menu").defines(function() {
     
 
     function onPlayerModelChanged(model, event) {
