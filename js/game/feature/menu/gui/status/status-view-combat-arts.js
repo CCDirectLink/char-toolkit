@@ -1,4 +1,13 @@
 ig.module("game.feature.ui-replacer.menu.gui.status.status-view-combat-arts").requires("game.feature.menu.gui.status.status-view-combat-arts").defines(function() {
+    function addPlayerObserver(instance) {
+        sc.Model.addObserver(sc.model.player, instance);
+
+    }
+
+    function removePlayerObserver(instance)  {
+        sc.Model.removeObserver(sc.model.player, instance);
+    }
+    
     function onPlayerModelChanged(model, event) {
         if (model === sc.model.player) {
             if (event === sc.PLAYER_MSG.CONFIG_CHANGED) {
@@ -18,6 +27,9 @@ ig.module("game.feature.ui-replacer.menu.gui.status.status-view-combat-arts").re
         init: function() {
             this.parent(...arguments);
             this.modelChanged(sc.model.player, sc.PLAYER_MSG.CONFIG_CHANGED);
+        },
+        setConfig(config) {
+            this.config = config;
         },
         onAttach: function() {
             addPlayerObserver(this);
