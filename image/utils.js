@@ -19,7 +19,6 @@ export class ImageUtils {
                 onLoadableComplete: function (loaded, image) {
                     // replace image
                     if (loaded) {
-                        debugger;
                         image.decreaseRef();
                         if (!image.failed) {
                             resolve(img.data);
