@@ -1,3 +1,5 @@
+import { ImageUtils } from "./image/utils.js";
+
 export default class MenuUiReplacer extends Plugin {
     async prestart() {
         const menus = await this.getMenus();
@@ -15,7 +17,7 @@ export default class MenuUiReplacer extends Plugin {
             copy.menuGfx = customMenuGfx;
             copy.gfx = new ig.Image(menu.gfx);
             this.createIcon(copy);
-            
+
             if (menu.circuitIconGfx) {
                 copy.circuitIconGfx = new ig.Image(menu.circuitIconGfx);
             }
@@ -28,7 +30,7 @@ export default class MenuUiReplacer extends Plugin {
 
     createIcon(config) {
         const gfx = config.gfx;
-        const {offX, offY, sizeX, sizeY } = config.MapFloorButtonContainer;
+        const { offX, offY, sizeX, sizeY } = config.MapFloorButtonContainer;
         const iconGfx = new ig.ImageGui(gfx, offX, offY, sizeX, sizeY);
         config.icon = iconGfx;
         iconGfx.hook.transitions = {
@@ -48,7 +50,7 @@ export default class MenuUiReplacer extends Plugin {
     }
 
     getMenus() {
-       return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             $.ajax({
                 dataType: "json",
                 url: "data/menu.json",
@@ -57,33 +59,14 @@ export default class MenuUiReplacer extends Plugin {
                 },
                 error: () => {
                     reject();
-                }			
+                }
             });
-       });
-    }
-
-    async getBaseMenuImg() {
-        const img = new Image;
-
-        await new Promise((resolve, reject) => {
-			img.onload = () => {
-				resolve();
-			};
-
-			img.onerror = () => {
-				reject();
-			};
-            img.src = "media/gui/menu.png";
         });
-
-
-        return img;
     }
-
 
     async _createCustomMenu() {
         const img = new ig.Image;
-        const baseImage = await this.getBaseMenuImg();
+        const baseImage = await ImageUtils.loadImage("media/gui/menu.png");
 
         img.width = baseImage.width;
         img.height = baseImage.height;
@@ -95,7 +78,7 @@ export default class MenuUiReplacer extends Plugin {
                 y: 424,
                 w: 16,
                 h: 11
-            },{
+            }, {
                 x: 280,
                 y: 472,
                 w: 126,
@@ -111,35 +94,35 @@ export default class MenuUiReplacer extends Plugin {
 
     async _createTemplateImage(baseImage, settings) {
         const canvas = document.createElement("canvas");
-        
+
         canvas.width = settings.width;
         canvas.height = settings.height;
         const ctx = canvas.getContext("2d");
 
         ctx.drawImage(baseImage, 0, 0);
-        
-        for (const {x, y, w, h} of settings.clearInstructions) {
-            ctx.clearRect(x, y, w, h);			
+
+        for (const { x, y, w, h } of settings.clearInstructions) {
+            ctx.clearRect(x, y, w, h);
         }
-        
+
         return await this.loadImage(canvas.toDataURL("image/png"));
     }
 
     async loadImage(src) {
-		let imgData = new Image;
-		
+        let imgData = new Image;
 
-		await new Promise((resolve, reject) => {
-			imgData.onload = () => {
-				resolve();
-			};
 
-			imgData.onerror = () => {
-				reject();
-			};
+        await new Promise((resolve, reject) => {
+            imgData.onload = () => {
+                resolve();
+            };
 
-			imgData.src = src;
-		});
-		return imgData;
-	}
+            imgData.onerror = () => {
+                reject();
+            };
+
+            imgData.src = src;
+        });
+        return imgData;
+    }
 }
