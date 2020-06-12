@@ -1,164 +1,149 @@
-import { ImageUtils } from "./image/utils.js";
+ig.module('extendable-severed-heads')
+	.requires('impact.base.impact', 'game.feature.player.player-config')
+	.defines(() => {
+		const HEAD_INDEXES_FILE_PATH = 'data/players/headIdx.json';
 
-export default class ExtendableHeads extends Plugin {
-	async prestart() {
+		sc.ExtendableSeveredHeads = ig.JsonLoadable.extend({
+			cacheType: 'ExtendableSeveredHeads',
+			indexes: {},
+			customIds: [],
+			baseImage: null,
+			customImages: [],
+			loadCollector: null,
 
-		// Image loaded successfully
-		const oldImage = await ImageUtils.loadImage("media/gui/severed-heads.png");
+			init() {
+				this.parent(HEAD_INDEXES_FILE_PATH);
+			},
 
-		const { headIdx } = await this.getHeadIdx();
-		let imgs = [oldImage];
+			getCacheKey() {
+				return HEAD_INDEXES_FILE_PATH;
+			},
 
+			getJsonPath() {
+				return `${ig.root}${this.path}${ig.getCacheSuffix()}`;
+			},
 
-		// assume each image is 24x24
-		for (let index = 0; index < headIdx.length; ++index) {
-			const head = headIdx[index];
-			try {
-				imgs.push((await ImageUtils.loadImage(head.img)));
-			} catch (e) {
-				headIdx.splice(index, 1);
-				--index;
-				console.log(`Cound not load head of "${head.id}"`);
-				console.log(e);
-			}
-		}
+			onload(data) {
+				this.loadCollector = new ig.LoadCollector(this);
 
-		const newImage = await this.mergeImages(imgs);
-		const dim = this.getTotalDim([newImage]);
+				this.baseImage = new ig.Image('media/gui/severed-heads.png');
+				for (const head of data.headIdx) {
+					this.customIds.push(head.id);
+					this.customImages.push(new ig.Image(head.img));
+				}
 
+				this.loadCollector.finalizeLoadableFetching();
+			},
 
-		const startIndex = this.calcStartIndex(dim, headIdx);
+			onCacheCleared() {
+				this.baseImage.decreaseRef();
+				for (const img of this.customImages) img.decreaseRef();
+			},
 
+			onLoadableComplete(success, loadable) {
+				if (!(success && loadable === this.loadCollector)) return;
 
+				if (this.baseImage.failed) return;
+				for (const img of this.customImages) {
+					if (img.failed) return;
+				}
 
+				this._assignCustomIndexes();
+				this._patchBaseImage();
+			},
 
+			_assignCustomIndexes() {
+				const startIndex = Math.floor(this.baseImage.width / 24);
+				for (let i = 0; i < this.customIds.length; i++) {
+					const id = this.customIds[i];
+					this.indexes[id] = startIndex + i;
+				}
+			},
 
-		const customIdx = {};
+			_patchBaseImage() {
+				const canvas = document.createElement('canvas');
 
-		for (let index = 0; index < headIdx.length; ++index) {
-			const head = headIdx[index];
-			customIdx[head.id] = startIndex + index;
-		}
+				const baseImg = this.baseImage;
+				if (baseImg.height !== 24) {
+					throw new Error(
+						"extended-severed-heads: height of the base image isn't 24. please ask the maintainers to fix this mod ASAP!",
+					);
+				}
+				const roundedBaseImageWidth = baseImg.width - (baseImg.width % 24);
+
+				canvas.width = roundedBaseImageWidth + this.customImages.length * 24;
+				canvas.height = 24;
+
+				const ctx = canvas.getContext('2d');
+
+				function drawImage(data, srcX, srcY, sizeX, sizeY, destX, destY) {
+					ctx.drawImage(
+						data,
+						srcX,
+						srcY,
+						sizeX,
+						sizeY,
+						destX,
+						destY,
+						sizeX,
+						sizeY,
+					);
+				}
+
+				drawImage(baseImg.data, 0, 0, roundedBaseImageWidth, 24, 0, 0);
+				let offset = roundedBaseImageWidth;
+				for (const img of this.customImages) {
+					drawImage(img.data, 0, 0, 24, 24, offset, 0);
+					offset += 24;
+				}
+
+				this.baseImage.data = canvas;
+			},
+		});
+
+		sc.extendableSeveredHeads = new sc.ExtendableSeveredHeads();
+
 		sc.PlayerConfig.inject({
-			onload: function (config) {
-				if (!config.jsonTEMPLATES) {
-					const id = config.character;
-					if (id in customIdx) {
+			onload() {
+				let result = this.parent.apply(this, arguments);
 
-						config.headIdx = customIdx[id];
-					}
-				}
-				this.parent(config);
-			}
+				sc.extendableSeveredHeads.addLoadListener({
+					onLoadableComplete: (success, loadable) => {
+						if (!success) return;
+						const id = this.character.name;
+						const { indexes } = loadable;
+						if (id in indexes) this.headIdx = indexes[id];
+					},
+				});
+
+				return result;
+			},
 		});
+	});
 
+ig.module('extendable-severed-heads.save-slot-gui-party')
+	.requires('extendable-severed-heads', 'game.feature.menu.gui.save.save-misc')
+	.defines(() => {
 		sc.SaveSlotParty.inject({
-			setParty: function ({ player }) {
-				try {
-					this.party[0] = sc.party.models[player.playerConfig].getHeadIdx();
-				} catch (e) { }
-
+			setParty(save) {
+				this.party[0] = sc.party.models[save.player.playerConfig].getHeadIdx();
 				return this.parent.apply(this, arguments);
-			}
+			},
 		});
+	});
 
-
+ig.module('extendable-severed-heads.combat-hud')
+	.requires('extendable-severed-heads', 'game.feature.gui.hud.combat-hud')
+	.defines(() => {
 		sc.CombatUpperHud.inject({
-			init: function () {
+			init() {
 				this.parent();
-				const pvp = this.sub.pvp;
-				const old = pvp._renderHeads;
-				pvp._renderHeads = function (renderer, x, flip, idxArr) {
-					if (flip) {
-						idxArr[0] = sc.model.player.config.headIdx;
-					}
-					return old.apply(this, arguments);
-				}
-			}
+				const { pvp } = this.sub;
+				const renderHeads = pvp._renderHeads;
+				pvp._renderHeads = function(_renderer, _x, left, heads) {
+					if (left) heads[0] = sc.model.player.config.headIdx;
+					return renderHeads.apply(this, arguments);
+				};
+			},
 		});
-
-		const img = new ig.Image("media/gui/severed-heads.png");
-		img.addLoadListener({
-			onLoadableComplete: function (loaded, image) {
-				// replace image
-				if (loaded) {
-					if (!image.failed) {
-						image.width = newImage.width;
-						image.height = newImage.height;
-
-						image.data = newImage;
-					}
-
-				}
-			}
-		});
-
-	}
-
-
-	getTotalDim(imgs) {
-		let dim = {
-			x: 0,
-			y: 0
-		};
-		for (const img of imgs) {
-			dim.x += img.width;
-			dim.y = Math.max(dim.y, img.height);
-		}
-		return dim;
-	}
-	async mergeImages(imgs) {
-		const canvas = document.createElement("canvas");
-
-
-		// preset canvas
-
-		// normalize the width
-
-		// calculate the true width
-
-		let width = 0;
-		const xPos = [];
-		for (const img of imgs) {
-			xPos.push(width);
-			const remainder = (24 - (img.width % 24));
-			if (remainder % 24 === 0) {
-				width += img.width;
-			} else {
-				// round up
-				width += img.width + remainder;
-			}
-		}
-
-		canvas.width = width;
-		canvas.height = 24;
-		const ctx = canvas.getContext("2d");
-
-		// want to go by a factor of 24
-		// go one by one
-		for (const img of imgs) {
-			ctx.drawImage(img, xPos.shift(), 0);
-		}
-		return await ImageUtils.createImage(canvas.toDataURL("image/png"));
-	}
-
-	calcStartIndex(dim, extraImgs) {
-		// assume each head is 24x24
-		return (dim.x - (extraImgs.length * 24)) / 24;
-	}
-
-	getHeadIdx() {
-		return new Promise((resolve, reject) => {
-			$.ajax({
-				dataType: "json",
-				url: "data/players/headIdx.json",
-				success: (data) => {
-					resolve(data)
-				},
-				error: () => {
-					reject();
-				}
-			})
-		});
-	}
-}
+	});
