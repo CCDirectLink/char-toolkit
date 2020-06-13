@@ -7,9 +7,8 @@ ig.module('menu-ui-replacer')
 
     sc.MenuUiReplacer = ig.JsonLoadable.extend({
       cacheType: 'MenuUiReplacer',
-      baseMenuGfx: new ig.Image('media/gui/menu.png'),
-      patchedMenuGfx: null,
       customMenus: null,
+      currentConfig: null,
 
       init() {
         this.parent(MENU_FILE_PATH);
@@ -27,165 +26,70 @@ ig.module('menu-ui-replacer')
       onload(data) {
         for (const menu of data) {
           menu.gfx = new ig.Image(menu.gfx);
-
-          const { offX, offY, sizeX, sizeY } = menu.MapFloorButtonContainer;
-          menu.MapFloorButtonContainer = new ig.ImageGui(
-            menu.gfx,
-            offX,
-            offY,
-            sizeX,
-            sizeY,
-          );
-          menu.MapFloorButtonContainer.hook.transitions = {
-            DEFAULT: {
-              state: {},
-              time: 0.2,
-              timeFunction: KEY_SPLINES.LINEAR,
-            },
-            HIDDEN: {
-              state: { alpha: 0 },
-              time: 0.2,
-              timeFunction: KEY_SPLINES.LINEAR,
-            },
-          };
-
           if (menu.circuitIconGfx != null) {
             menu.circuitIconGfx = new ig.Image(menu.circuitIconGfx);
           }
-
           this.customMenus.set(menu.name, menu);
         }
-
-        if (data.length > 0) this.baseMenuGfx.addLoadListener(this);
       },
 
-      onLoadableComplete(success, loadable) {
-        if (!(success && loadable === this.baseMenuGfx)) return;
-
-        this._createPatchedMenuGfx();
-      },
-
-      _createPatchedMenuGfx() {
-        const canvas = document.createElement('canvas');
-
-        const baseGfx = this.baseMenuGfx;
-        canvas.width = baseGfx.width;
-        canvas.height = baseGfx.height;
-
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(baseGfx.data, 0, 0);
-        ctx.clearRect(280, 424, 16, 11);
-        ctx.clearRect(280, 472, 126, 35);
-
-        const patchedGfx = new ig.Image();
-        patchedGfx.width = canvas.width;
-        patchedGfx.height = canvas.height;
-        patchedGfx.data = canvas;
-        this.patchedMenuGfx = patchedGfx;
+      modelChanged(model, event) {
+        if (
+          model === sc.model.player &&
+          event === sc.PLAYER_MSG.CONFIG_CHANGED
+        ) {
+          // config can be null if it wasn't found
+          this.currentConfig = this.customMenus.get(sc.model.player.name);
+        }
       },
     });
 
     sc.menuUiReplacer = new sc.MenuUiReplacer();
   });
 
-function addPlayerObserver(instance) {
-  sc.Model.addObserver(sc.model.player, instance);
-}
-
-function removePlayerObserver(instance) {
-  sc.Model.removeObserver(sc.model.player, instance);
-}
-
-function onPlayerModelChanged(model, event) {
-  if (model === sc.model.player) {
-    if (event === sc.PLAYER_MSG.CONFIG_CHANGED) {
-      // config can be null if it wasn't found
-      const config = sc.menuUiReplacer.customMenus.get(sc.model.player.name);
-      this.setConfig(config);
-    }
-  }
-}
-
 ig.module('menu-ui-replacer.main-menu')
   .requires('game.feature.menu.gui.main-menu')
   .defines(() => {
     sc.MainMenu.LeaLarge.inject({
-      config: null,
-
-      init(...args) {
-        this.parent(...args);
-        addPlayerObserver(this);
-      },
-
-      setConfig(config) {
-        this.config = config;
-      },
-
       updateDrawables(renderer) {
-        if (this.config == null) return this.parent(renderer);
+        const config = sc.menuUiReplacer.currentConfig;
+        if (config == null) return this.parent(renderer);
 
-        const gfx = this.config.gfx;
-        const {
-          gfxOffX,
-          gfxOffY,
-          offX,
-          offY,
-          sizeX,
-          sizeY,
-        } = this.config.Large;
+        const gfx = config.gfx;
+        const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.Large;
         renderer
           .addDraw()
           .setGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
       },
-
-      modelChanged: onPlayerModelChanged,
     });
 
     sc.MainMenu.LeaSmall.inject({
-      config: null,
-
-      init(...args) {
-        this.parent(...args);
-        addPlayerObserver(this);
-      },
-
-      setConfig(config) {
-        this.config = config;
-      },
-
       updateDrawables(renderer) {
-        if (this.config == null) return this.parent(renderer);
+        const config = sc.menuUiReplacer.currentConfig;
+        if (config == null) return this.parent(renderer);
 
-        const gfx = this.config.gfx;
-        const {
-          gfxOffX,
-          gfxOffY,
-          offX,
-          offY,
-          sizeX,
-          sizeY,
-        } = this.config.Small;
+        const gfx = config.gfx;
+        const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.Small;
         renderer
           .addDraw()
           .setGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
       },
-
-      modelChanged: onPlayerModelChanged,
     });
 
     sc.AreaButton.inject({
       updateDrawables(renderer) {
-        const currentConfig = sc.menuUiReplacer.customMenus.get(
-          sc.model.player.name,
-        );
-        const old = this.gfx;
-        if (currentConfig) {
-          this.gfx = sc.menuUiReplacer.patchedMenuGfx;
-        }
+        const config = sc.menuUiReplacer.currentConfig;
+        if (config == null) return this.parent(renderer);
 
+        const { activeArea } = this;
+        this.activeArea = false;
         this.parent(renderer);
-        if (currentConfig && this.activeArea) {
-          const gfx = currentConfig.gfx;
+        this.activeArea = activeArea;
+
+        if (activeArea) {
+          renderer.addGfx(this.gfx, 1, 2, 304, 440, 3, 3);
+
+          const gfx = config.gfx;
           const {
             gfxOffX,
             gfxOffY,
@@ -193,97 +97,82 @@ ig.module('menu-ui-replacer.main-menu')
             offY,
             sizeX,
             sizeY,
-          } = currentConfig.AreaButton;
+          } = config.AreaButton;
           renderer.addGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
         }
-        this.gfx = old;
       },
     });
 
-    // just patch leaIcon
     sc.MapFloorButtonContainer.inject({
-      config: null,
-
       originalCopy: null,
-      init() {
-        this.parent(...arguments);
-        this.originalCopy = this.leaIcon;
 
-        addPlayerObserver(this);
-
-        if (sc.model.player.name !== 'Lea') {
-          const config = sc.menuUiReplacer.customMenus.get(
-            sc.model.player.name,
-          );
-          if (config) {
-            this.setConfig(config);
-          }
-        }
+      init(...args) {
+        this.parent(...args);
+        this.leaIconOriginal = this.leaIcon;
+        this._updateLeaIcon();
       },
 
-      addObservers() {
-        this.parent();
-        addPlayerObserver(this);
-      },
-      removeObservers() {
-        removePlayerObserver(this);
+      addObservers(...args) {
+        this.parent(...args);
+        sc.Model.addObserver(sc.model.player, this);
       },
 
-      setConfig(config) {
-        this.config = config;
-        this.updateIcon();
+      removeObservers(...args) {
+        this.parent(...args);
+        sc.Model.removeObserver(sc.model.player, this);
       },
 
-      updateIcon() {
-        if (this.config != null) {
-          this.leaIcon.doStateTransition('HIDDEN', true);
-          this.leaIcon = this.config.MapFloorButtonContainer;
-          this.leaIcon.doStateTransition('HIDDEN', true);
+      _updateLeaIcon() {
+        this.leaIcon.doStateTransition('HIDDEN', true);
+
+        const config = sc.menuUiReplacer.currentConfig;
+        if (config != null) {
+          const { offX, offY, sizeX, sizeY } = config.MapFloorButtonContainer;
+          this.leaIcon = new ig.ImageGui(config.gfx, offX, offY, sizeX, sizeY);
+          this.leaIcon.hook.transitions = this.leaIconOriginal.hook.transitions;
         } else {
-          this.leaIcon = this.originalCopy;
+          this.leaIcon = this.leaIconOriginal;
         }
+
         this._createButtons(true);
       },
-      modelChanged: onPlayerModelChanged,
+
+      modelChanged(model, event) {
+        this.parent(model, event);
+        if (
+          model === sc.model.player &&
+          event === sc.PLAYER_MSG.CONFIG_CHANGED
+        ) {
+          this._updateLeaIcon();
+        }
+      },
     });
 
     function customStatusDrawables(renderer) {
-      const currentConfig = sc.menuUiReplacer.customMenus.get(
-        sc.model.player.name,
-      );
-      if (currentConfig) {
-        const old = this.menuGfx;
-        this.menuGfx = sc.menuUiReplacer.patchedMenuGfx;
-        ig.BoxGui.prototype.updateDrawables.apply(this, arguments);
-        const gfx = currentConfig.gfx;
-        const {
-          gfxOffX,
-          gfxOffY,
-          offX,
-          offY,
-          sizeX,
-          sizeY,
-        } = currentConfig.Head;
-        renderer.addGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
-        renderer.addGfx(
-          this.statusGfx,
-          64,
-          5,
-          104,
-          32 + sc.model.player.currentElementMode * 24,
-          24,
-          24,
-        );
-        this.menuGfx = old;
+      sc.MenuPanel.prototype.updateDrawables.apply(this, arguments);
+
+      const config = sc.menuUiReplacer.currentConfig;
+      if (config != null) {
+        const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.Head;
+        renderer.addGfx(config.gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
       } else {
-        this.parent(renderer);
+        renderer.addGfx(this.menuGfx, 0, 0, 280, 472, 126, 35);
       }
+
+      renderer.addGfx(
+        this.statusGfx,
+        64,
+        5,
+        104,
+        32 + sc.model.player.currentElementMode * 24,
+        24,
+        24,
+      );
     }
 
     sc.ItemStatusDefault.inject({
       updateDrawables: customStatusDrawables,
     });
-
     sc.StatusViewMainParameters.inject({
       updateDrawables: customStatusDrawables,
     });
@@ -292,9 +181,7 @@ ig.module('menu-ui-replacer.main-menu')
       updatePartyLeader() {
         const oldLeader = this.members[0];
         oldLeader.hide(true);
-
         this.removeChildGui(oldLeader);
-        this.members[0] = null;
 
         const newLeader = new sc.SocialPartyMember(true, sc.model.player);
         if (this.isHidden) {
@@ -321,19 +208,21 @@ ig.module('menu-ui-replacer.main-menu')
     sc.SocialMenu.inject({
       addObservers() {
         this.parent();
-        addPlayerObserver(this);
+        sc.Model.addObserver(sc.model.player, this);
       },
 
       removeObservers() {
         this.parent();
-        removePlayerObserver(this);
+        sc.Model.removeObserver(sc.model.player, this);
       },
 
-      modelChanged(instance, event) {
-        if (sc.model.player === instance) {
+      modelChanged(model, event) {
+        this.parent(model, event);
+        if (
+          model === sc.model.player &&
+          event === sc.PLAYER_MSG.CONFIG_CHANGED
+        ) {
           this.party.updatePartyLeader();
-        } else {
-          this.parent(...arguments);
         }
       },
     });
@@ -342,108 +231,38 @@ ig.module('menu-ui-replacer.main-menu')
 ig.module('menu-ui-replacer.circuit-icons')
   .requires('game.feature.menu.gui.circuit.circuit-effect-display')
   .defines(() => {
+    function circuitIconUpdateDrawables(renderer) {
+      const originalIcons = this.icons;
+
+      const config = sc.menuUiReplacer.currentConfig;
+      if (config != null && config.circuitIconGfx != null) {
+        this.icons = config.circuitIconGfx;
+      }
+
+      this.parent(renderer);
+      this.icons = originalIcons;
+    }
+
     sc.CircuitTreeDetail.Node.inject({
-      config: null,
-
-      init(...args) {
-        this.parent(...args);
-        this.modelChanged(sc.model.player, sc.PLAYER_MSG.CONFIG_CHANGED);
-      },
-
-      onAttach() {
-        addPlayerObserver(this);
-      },
-
-      onDetach() {
-        removePlayerObserver(this);
-      },
-
-      setConfig(config) {
-        this.config = config;
-      },
-
-      updateDrawables(renderer) {
-        let original = this.icons;
-
-        if (this.config !== null && this.config.circuitIconGfx) {
-          this.icons = this.config.circuitIconGfx;
-        }
-
-        this.parent(renderer);
-        this.icons = original;
-      },
-
-      modelChanged: onPlayerModelChanged,
+      updateDrawables: circuitIconUpdateDrawables,
     });
-
     sc.CircuitSwapBranchesInfoBox.Skill.inject({
-      config: null,
-
-      init(...args) {
-        this.parent(...args);
-        this.modelChanged(sc.model.player, sc.PLAYER_MSG.CONFIG_CHANGED);
-      },
-
-      onAttach() {
-        addPlayerObserver(this);
-      },
-
-      onDetach() {
-        removePlayerObserver(this);
-      },
-
-      setConfig(config) {
-        this.config = config;
-      },
-
-      updateDrawables(renderer) {
-        let original = this.icons;
-
-        if (this.config !== null && this.config.circuitIconGfx) {
-          this.icons = this.config.circuitIconGfx;
-          return;
-        }
-
-        this.parent(renderer);
-
-        this.icons = original;
-      },
-
-      modelChanged: onPlayerModelChanged,
+      updateDrawables: circuitIconUpdateDrawables,
     });
   });
 
-ig.module('menu-ui-replacer.status-view-combat-arts')
+ig.module('menu-ui-replacer.status-combat-arts')
   .requires('game.feature.menu.gui.status.status-view-combat-arts')
   .defines(() => {
     sc.StatusViewCombatArtsEntry.inject({
-      config: null,
+      updateDrawables(renderer) {
+        const config = sc.menuUiReplacer.currentConfig;
+        this.icon.image =
+          config != null && config.circuitIconGfx != null
+            ? config.circuitIconGfx
+            : this.skillIcons;
 
-      init(...args) {
-        this.parent(...args);
-        this.modelChanged(sc.model.player, sc.PLAYER_MSG.CONFIG_CHANGED);
+        this.parent(renderer);
       },
-
-      setConfig(config) {
-        this.config = config;
-      },
-
-      onAttach() {
-        addPlayerObserver(this);
-      },
-
-      onDetach() {
-        removePlayerObserver(this);
-      },
-
-      updateDrawables() {
-        let circuitIconGfx = this.skillIcons;
-        if (this.config != null && this.config.circuitIconGfx != null) {
-          circuitIconGfx = this.config.circuitIconGfx;
-        }
-        this.icon.image = circuitIconGfx;
-      },
-
-      modelChanged: onPlayerModelChanged,
     });
   });
