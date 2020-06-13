@@ -11,25 +11,21 @@ function removePlayerObserver(instance) {
 function onPlayerModelChanged(model, event) {
   if (model === sc.model.player) {
     if (event === sc.PLAYER_MSG.CONFIG_CHANGED) {
-      const playerName = sc.model.player.name;
-      if (customPlayerMenus.has(playerName)) {
-        this.setConfig(customPlayerMenus.get(playerName));
-      } else {
-        this.setConfig(null);
-      }
+      // config can be null if it wasn't found
+      const config = customPlayerMenus.get(sc.model.player.name);
+      this.setConfig(config);
     }
   }
 }
 
 ig.module('game.feature.ui-replacer.menu.gui.main-menu')
   .requires('game.feature.menu.gui.main-menu')
-  .defines(function() {
+  .defines(() => {
     sc.MainMenu.LeaLarge.inject({
       config: null,
 
-      init() {
-        this.parent(...arguments);
-
+      init(...args) {
+        this.parent(...args);
         addPlayerObserver(this);
       },
 
@@ -37,21 +33,21 @@ ig.module('game.feature.ui-replacer.menu.gui.main-menu')
         this.config = config;
       },
 
-      updateDrawables(a) {
-        if (this.config !== null) {
-          const gfx = this.config.gfx;
-          const {
-            gfxOffX,
-            gfxOffY,
-            offX,
-            offY,
-            sizeX,
-            sizeY,
-          } = this.config.Large;
-          a.addDraw().setGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
-          return;
-        }
-        this.parent(a);
+      updateDrawables(renderer) {
+        if (this.config == null) return this.parent(renderer);
+
+        const gfx = this.config.gfx;
+        const {
+          gfxOffX,
+          gfxOffY,
+          offX,
+          offY,
+          sizeX,
+          sizeY,
+        } = this.config.Large;
+        renderer
+          .addDraw()
+          .setGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
       },
 
       modelChanged: onPlayerModelChanged,
@@ -60,9 +56,8 @@ ig.module('game.feature.ui-replacer.menu.gui.main-menu')
     sc.MainMenu.LeaSmall.inject({
       config: null,
 
-      init() {
-        this.parent(...arguments);
-
+      init(...args) {
+        this.parent(...args);
         addPlayerObserver(this);
       },
 
@@ -70,22 +65,23 @@ ig.module('game.feature.ui-replacer.menu.gui.main-menu')
         this.config = config;
       },
 
-      updateDrawables(a) {
-        if (this.config !== null) {
-          const gfx = this.config.gfx;
-          const {
-            gfxOffX,
-            gfxOffY,
-            offX,
-            offY,
-            sizeX,
-            sizeY,
-          } = this.config.Small;
-          a.addDraw().setGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
-          return;
-        }
-        this.parent(a);
+      updateDrawables(renderer) {
+        if (this.config == null) return this.parent(renderer);
+
+        const gfx = this.config.gfx;
+        const {
+          gfxOffX,
+          gfxOffY,
+          offX,
+          offY,
+          sizeX,
+          sizeY,
+        } = this.config.Small;
+        renderer
+          .addDraw()
+          .setGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
       },
+
       modelChanged: onPlayerModelChanged,
     });
 
@@ -147,7 +143,7 @@ ig.module('game.feature.ui-replacer.menu.gui.main-menu')
       },
 
       updateIcon() {
-        if (this.config !== null) {
+        if (this.config != null) {
           this.leaIcon.doStateTransition('HIDDEN', true);
           this.leaIcon = this.config.icon;
           this.leaIcon.doStateTransition('HIDDEN', true);
@@ -217,12 +213,13 @@ ig.module('game.feature.ui-replacer.menu.gui.main-menu')
         this.insertChildGui(newLeader);
       },
 
-      show() {
-        this.parent(...arguments);
+      show(...args) {
+        this.parent(...args);
         this.isHidden = false;
       },
-      hide() {
-        this.parent(...arguments);
+
+      hide(...args) {
+        this.parent(...args);
         this.isHidden = true;
       },
     });
@@ -232,10 +229,12 @@ ig.module('game.feature.ui-replacer.menu.gui.main-menu')
         this.parent();
         addPlayerObserver(this);
       },
+
       removeObservers() {
         this.parent();
         removePlayerObserver(this);
       },
+
       modelChanged(instance, event) {
         if (sc.model.player === instance) {
           this.party.updatePartyLeader();
@@ -248,22 +247,27 @@ ig.module('game.feature.ui-replacer.menu.gui.main-menu')
 
 ig.module('game.feature.ui-replacer.menu.gui.circuit-icons')
   .requires('game.feature.menu.gui.circuit.circuit-effect-display')
-  .defines(function() {
+  .defines(() => {
     sc.CircuitTreeDetail.Node.inject({
       config: null,
-      init() {
-        this.parent(...arguments);
+
+      init(...args) {
+        this.parent(...args);
         this.modelChanged(sc.model.player, sc.PLAYER_MSG.CONFIG_CHANGED);
       },
+
       onAttach() {
         addPlayerObserver(this);
       },
+
       onDetach() {
         removePlayerObserver(this);
       },
+
       setConfig(config) {
         this.config = config;
       },
+
       updateDrawables(renderer) {
         let original = this.icons;
 
@@ -274,24 +278,30 @@ ig.module('game.feature.ui-replacer.menu.gui.circuit-icons')
         this.parent(renderer);
         this.icons = original;
       },
+
       modelChanged: onPlayerModelChanged,
     });
 
     sc.CircuitSwapBranchesInfoBox.Skill.inject({
       config: null,
-      init() {
-        this.parent(...arguments);
+
+      init(...args) {
+        this.parent(...args);
         this.modelChanged(sc.model.player, sc.PLAYER_MSG.CONFIG_CHANGED);
       },
+
       onAttach() {
         addPlayerObserver(this);
       },
+
       onDetach() {
         removePlayerObserver(this);
       },
+
       setConfig(config) {
         this.config = config;
       },
+
       updateDrawables(renderer) {
         let original = this.icons;
 
@@ -304,50 +314,42 @@ ig.module('game.feature.ui-replacer.menu.gui.circuit-icons')
 
         this.icons = original;
       },
-      modelChanged(model, event) {
-        if (model === sc.model.player) {
-          if (event === sc.PLAYER_MSG.CONFIG_CHANGED) {
-            const playerName = sc.model.player.name;
-            if (customPlayerMenus.has(playerName)) {
-              this.setConfig(customPlayerMenus.get(playerName));
-            } else {
-              this.setConfig(null);
-            }
-          }
-        }
-      },
+
+      modelChanged: onPlayerModelChanged,
     });
   });
 
 ig.module('game.feature.ui-replacer.menu.gui.status.status-view-combat-arts')
   .requires('game.feature.menu.gui.status.status-view-combat-arts')
-  .defines(function() {
+  .defines(() => {
     sc.StatusViewCombatArtsEntry.inject({
       config: null,
-      init() {
-        this.parent(...arguments);
+
+      init(...args) {
+        this.parent(...args);
         this.modelChanged(sc.model.player, sc.PLAYER_MSG.CONFIG_CHANGED);
       },
+
       setConfig(config) {
         this.config = config;
       },
+
       onAttach() {
         addPlayerObserver(this);
       },
+
       onDetach() {
         removePlayerObserver(this);
       },
-      updateDrawables() {
-        const config = this.config;
 
+      updateDrawables() {
         let circuitIconGfx = this.skillIcons;
-        if (config !== null) {
-          if (config.circuitIconGfx) {
-            circuitIconGfx = config.circuitIconGfx;
-          }
+        if (this.config != null && this.config.circuitIconGfx != null) {
+          circuitIconGfx = this.config.circuitIconGfx;
         }
         this.icon.image = circuitIconGfx;
       },
+
       modelChanged: onPlayerModelChanged,
     });
   });
