@@ -1,0 +1,146 @@
+commit b9a33355575f66a92034dcfc44336e73c1e7b045
+Author: ac2pic <13393678+ac2pic@users.noreply.github.com>
+Date:   Sat Jun 13 14:23:56 2020 -0500
+
+    Create README.md
+
+commit 81a910ca6a71cdf1b6b0a4a0298c5f5bf56aa356
+Author: ac2pic <13393678+ac2pic@users.noreply.github.com>
+Date:   Sat Jun 13 14:09:20 2020 -0500
+
+    Update package.json
+
+commit cdef95a13af2304f37980d28e31dd03ea8be862c
+Merge: dde90d5 82383c1
+Author: ac2pic <13393678+ac2pic@users.noreply.github.com>
+Date:   Sat Jun 13 13:29:13 2020 -0500
+
+    Merge pull request #1 from dmitmel/master
+    
+    Big refactor (most notably delete a ton of unnecessary code), use loadables instead of $.ajax and promises (which fixes incompatibility with Localize Me)
+
+commit 82383c1244baa49d514764c303df1cc475db6a7d
+Author: Dmytro Meleshko <dmytro.meleshko@gmail.com>
+Date:   Sat Jun 13 16:21:00 2020 +0300
+
+    separate injections into smaller modules
+
+commit c1699613e958e3ae6ca1ff590db519f851a9228c
+Author: Dmytro Meleshko <dmytro.meleshko@gmail.com>
+Date:   Sat Jun 13 16:01:09 2020 +0300
+
+    reformat
+
+commit 88bb615b1d76cc693a28fac8e995c937b4bacca9
+Author: Dmytro Meleshko <dmytro.meleshko@gmail.com>
+Date:   Sat Jun 13 15:58:05 2020 +0300
+
+    move menu-ui-replacer code to a separate file
+
+commit bcc54337d0d66570ce38c8a6ff0469876c988c18
+Author: Dmytro Meleshko <dmytro.meleshko@gmail.com>
+Date:   Sat Jun 13 15:56:27 2020 +0300
+
+    refactor menu-ui-replacer
+
+commit 7ea533dcde73641b23d6e2ec734cd2b0484c9a72
+Author: Dmytro Meleshko <dmytro.meleshko@gmail.com>
+Date:   Sat Jun 13 12:17:25 2020 +0300
+
+    delete useless files
+
+commit 17f70777ff24277b993060119a279633d2319452
+Author: Dmytro Meleshko <dmytro.meleshko@gmail.com>
+Date:   Sat Jun 13 11:34:50 2020 +0300
+
+    rewrite the menu-ui-replacer component to use loadables
+
+commit 5811c26189f3739eebe2d0f16fdfc26b56238a46
+Author: Dmytro Meleshko <dmytro.meleshko@gmail.com>
+Date:   Sat Jun 13 10:30:28 2020 +0300
+
+    small stylistic changes
+
+commit b552a5b99886c6d1c76cc9cfa84d3fe10a4c8266
+Author: Dmytro Meleshko <dmytro.meleshko@gmail.com>
+Date:   Sat Jun 13 09:47:59 2020 +0300
+
+    copy all of menu-replacer's impact modules into a single file
+
+commit 0196ff8b4d0f9c9dbfa64a89edf459d2092a4556
+Author: Dmytro Meleshko <dmytro.meleshko@gmail.com>
+Date:   Sat Jun 13 01:31:07 2020 +0300
+
+    rewrite the extendable-severed-heads component
+
+commit dde90d5d9afef440efb44087c642b1ed923d12aa
+Author: ac2pic <ac2pic@gmail.com>
+Date:   Mon May 11 22:44:59 2020 -0500
+
+    Removed debugger
+
+commit d8f4a11ad10ef4fb828defd096fec4dcde347c26
+Author: ac2pic <ac2pic@gmail.com>
+Date:   Mon May 11 20:48:38 2020 -0500
+
+    Updated code to work with latest version of DevModLoader
+
+commit 28eabd12cda300f7fd2ef4e8d403c050172ccdde
+Author: ac2pic <ac2pic@gmail.com>
+Date:   Wed Apr 1 10:58:17 2020 -0500
+
+    Fixed clicking status button crashing the game
+
+commit e1e3aac852b7de1143e1a47a947cec822ae2ce2b
+Author: ac2pic <ac2pic@gmail.com>
+Date:   Mon Mar 30 17:02:11 2020 -0500
+
+    Made changes to module names
+
+commit 45c7e7cec1985556f1b8ffed5316493d4a30e710
+Author: ac2pic <ac2pic@gmail.com>
+Date:   Mon Mar 30 17:01:58 2020 -0500
+
+    Added StatusViewCombatArt file
+
+commit 43ee654a0420f0d167faf9cdabff09d981f665be
+Author: ac2pic <ac2pic@gmail.com>
+Date:   Mon Mar 30 16:59:15 2020 -0500
+
+    Made some code improvements
+
+commit 5caab9a1504aaef2d0a808b9d91fdb8a47728b0d
+Author: ac2pic <ac2pic@gmail.com>
+Date:   Mon Mar 30 16:56:01 2020 -0500
+
+    Added CircuitIcons override
+
+commit 14cb24b02053369b4e111e0a7169aad662f6d551
+Author: ac2pic <ac2pic@gmail.com>
+Date:   Mon Mar 30 12:40:39 2020 -0500
+
+    postload script now imported as module
+
+commit 42089c0679a0056859a7f263d95c47175089c833
+Author: ac2pic <ac2pic@gmail.com>
+Date:   Mon Mar 30 12:40:25 2020 -0500
+
+    Fixed issue with MenuUiReplacer
+
+commit 44c81aae98d2c48d55789583ba38a45255e6491b
+Author: ac2pic <ac2pic@gmail.com>
+Date:   Mon Mar 30 12:34:13 2020 -0500
+
+    Copy and pasted code
+
+commit 33fde31428f5d5b0bab51e92f650184c64604193
+Author: ac2pic <ac2pic@gmail.com>
+Date:   Mon Mar 30 12:20:38 2020 -0500
+
+    Added basic mod stuff
+
+commit 7480820079ec6bf9f34417a4e1f44ca23368d3b2
+Author: ac2pic <ac2pic@gmail.com>
+Date:   Mon Mar 30 12:19:14 2020 -0500
+
+    Initial commit
