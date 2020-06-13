@@ -1,16 +1,16 @@
 ig.module('menu-ui-replacer')
-    .requires('impact.base.impact')
+    .requires('impact.base.impact', 'game.feature.player.player-model')
     .defines(() => {
         const MENU_FILE_PATH = 'data/menu.json';
 
         sc.MenuUiReplacer = ig.JsonLoadable.extend({
             cacheType: 'MenuUiReplacer',
-            customMenus: null,
+            configs: null,
             currentConfig: null,
 
             init() {
                 this.parent(MENU_FILE_PATH);
-                this.customMenus = new Map();
+                this.configs = new Map();
             },
 
             getCacheKey() {
@@ -27,14 +27,14 @@ ig.module('menu-ui-replacer')
                     if (menu.circuitIconGfx != null) {
                         menu.circuitIconGfx = new ig.Image(menu.circuitIconGfx);
                     }
-                    this.customMenus.set(menu.name, menu);
+                    this.configs.set(menu.name, menu);
                 }
             },
 
             modelChanged(model, event) {
                 if (model === sc.model.player && event === sc.PLAYER_MSG.CONFIG_CHANGED) {
                     // config can be null if it wasn't found
-                    this.currentConfig = this.customMenus.get(sc.model.player.name);
+                    this.currentConfig = this.configs.get(sc.model.player.name);
                 }
             },
         });
@@ -43,7 +43,7 @@ ig.module('menu-ui-replacer')
     });
 
 ig.module('menu-ui-replacer.main-menu')
-    .requires('game.feature.menu.gui.main-menu')
+    .requires('game.feature.menu.gui.main-menu', 'menu-ui-replacer')
     .defines(() => {
         sc.MainMenu.LeaLarge.inject({
             updateDrawables(renderer) {
@@ -66,7 +66,43 @@ ig.module('menu-ui-replacer.main-menu')
                 renderer.addDraw().setGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
             },
         });
+    });
 
+ig.module('menu-ui-replacer.player-stats-boxes')
+    .requires(
+        'game.feature.menu.gui.item.item-status-default',
+        'game.feature.menu.gui.status.status-view-main',
+        'game.feature.menu.gui.menu-misc',
+        'menu-ui-replacer',
+    )
+    .defines(() => {
+        function updateDrawables(renderer) {
+            sc.MenuPanel.prototype.updateDrawables.call(this, renderer);
+
+            const config = sc.menuUiReplacer.currentConfig;
+            if (config != null) {
+                const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.Head;
+                renderer.addGfx(config.gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
+            } else {
+                renderer.addGfx(this.menuGfx, 0, 0, 280, 472, 126, 35);
+            }
+
+            const elementOffset = sc.model.player.currentElementMode * 24;
+            renderer.addGfx(this.statusGfx, 64, 5, 104, 32 + elementOffset, 24, 24);
+        }
+
+        sc.ItemStatusDefault.inject({ updateDrawables });
+        sc.StatusViewMainParameters.inject({ updateDrawables });
+    });
+
+ig.module('menu-ui-replacer.map-menu')
+    .requires(
+        'game.feature.menu.gui.map.map-worldmap',
+        'game.feature.menu.gui.map.map-misc',
+        'game.feature.player.player-model',
+        'menu-ui-replacer',
+    )
+    .defines(() => {
         sc.AreaButton.inject({
             updateDrawables(renderer) {
                 const config = sc.menuUiReplacer.currentConfig;
@@ -106,6 +142,13 @@ ig.module('menu-ui-replacer.main-menu')
                 sc.Model.removeObserver(sc.model.player, this);
             },
 
+            modelChanged(model, event) {
+                this.parent(model, event);
+                if (model === sc.model.player && event === sc.PLAYER_MSG.CONFIG_CHANGED) {
+                    this._updateLeaIcon();
+                }
+            },
+
             _updateLeaIcon() {
                 this.leaIcon.doStateTransition('HIDDEN', true);
 
@@ -120,40 +163,12 @@ ig.module('menu-ui-replacer.main-menu')
 
                 this._createButtons(true);
             },
-
-            modelChanged(model, event) {
-                this.parent(model, event);
-                if (model === sc.model.player && event === sc.PLAYER_MSG.CONFIG_CHANGED) {
-                    this._updateLeaIcon();
-                }
-            },
         });
+    });
 
-        function customStatusDrawables(renderer) {
-            sc.MenuPanel.prototype.updateDrawables.apply(this, arguments);
-
-            const config = sc.menuUiReplacer.currentConfig;
-            if (config != null) {
-                const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.Head;
-                renderer.addGfx(config.gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
-            } else {
-                renderer.addGfx(this.menuGfx, 0, 0, 280, 472, 126, 35);
-            }
-
-            renderer.addGfx(
-                this.statusGfx,
-                64,
-                5,
-                104,
-                32 + sc.model.player.currentElementMode * 24,
-                24,
-                24,
-            );
-        }
-
-        sc.ItemStatusDefault.inject({ updateDrawables: customStatusDrawables });
-        sc.StatusViewMainParameters.inject({ updateDrawables: customStatusDrawables });
-
+ig.module('menu-ui-replacer.social-menu')
+    .requires('game.feature.menu.gui.social.social-misc')
+    .defines(() => {
         sc.SocialPartyBox.inject({
             updatePartyLeader() {
                 const oldLeader = this.members[0];
@@ -205,7 +220,7 @@ ig.module('menu-ui-replacer.main-menu')
 ig.module('menu-ui-replacer.circuit-icons')
     .requires('game.feature.menu.gui.circuit.circuit-effect-display')
     .defines(() => {
-        function circuitIconUpdateDrawables(renderer) {
+        function updateDrawables(renderer) {
             const originalIcons = this.icons;
 
             const config = sc.menuUiReplacer.currentConfig;
@@ -217,11 +232,11 @@ ig.module('menu-ui-replacer.circuit-icons')
             this.icons = originalIcons;
         }
 
-        sc.CircuitTreeDetail.Node.inject({ updateDrawables: circuitIconUpdateDrawables });
-        sc.CircuitSwapBranchesInfoBox.Skill.inject({ updateDrawables: circuitIconUpdateDrawables });
+        sc.CircuitTreeDetail.Node.inject({ updateDrawables });
+        sc.CircuitSwapBranchesInfoBox.Skill.inject({ updateDrawables });
     });
 
-ig.module('menu-ui-replacer.status-combat-arts')
+ig.module('menu-ui-replacer.status-menu')
     .requires('game.feature.menu.gui.status.status-view-combat-arts')
     .defines(() => {
         sc.StatusViewCombatArtsEntry.inject({
