@@ -1,128 +1,253 @@
-import { ImageUtils } from "./image/utils.js";
+ig.module('menu-ui-replacer')
+    .requires('impact.base.impact', 'game.feature.player.player-model')
+    .defines(() => {
+        const MENU_FILE_PATH = 'data/menu.json';
 
-export default class MenuUiReplacer extends Plugin {
-    async prestart() {
-        const menus = await this.getMenus();
+        sc.MenuUiReplacer = ig.JsonLoadable.extend({
+            cacheType: 'MenuUiReplacer',
+            configs: null,
+            currentConfig: null,
 
-        const playerMenus = window.customPlayerMenus = new Map;
-
-        let customMenuGfx;
-        if (menus.length) {
-            customMenuGfx = await this._createCustomMenu();
-        }
-
-
-        for (const menu of menus) {
-            const copy = JSON.parse(JSON.stringify(menu));
-            copy.menuGfx = customMenuGfx;
-            copy.gfx = new ig.Image(menu.gfx);
-            this.createIcon(copy);
-
-            if (menu.circuitIconGfx) {
-                copy.circuitIconGfx = new ig.Image(menu.circuitIconGfx);
-            }
-
-            playerMenus.set(copy.name, copy);
-        }
-
-        console.log('Done setting up custom stuff.');
-    }
-
-    createIcon(config) {
-        const gfx = config.gfx;
-        const { offX, offY, sizeX, sizeY } = config.MapFloorButtonContainer;
-        const iconGfx = new ig.ImageGui(gfx, offX, offY, sizeX, sizeY);
-        config.icon = iconGfx;
-        iconGfx.hook.transitions = {
-            DEFAULT: {
-                state: {},
-                time: 0.2,
-                timeFunction: KEY_SPLINES.LINEAR
+            init() {
+                this.parent(MENU_FILE_PATH);
+                this.configs = new Map();
             },
-            HIDDEN: {
-                state: {
-                    alpha: 0
-                },
-                time: 0.2,
-                timeFunction: KEY_SPLINES.LINEAR
-            }
-        }
-    }
 
-    getMenus() {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                dataType: "json",
-                url: "data/menu.json",
-                success: (data) => {
-                    resolve(data)
-                },
-                error: () => {
-                    reject();
+            getCacheKey() {
+                return MENU_FILE_PATH;
+            },
+
+            getJsonPath() {
+                return `${ig.root}${this.path}${ig.getCacheSuffix()}`;
+            },
+
+            onload(data) {
+                for (const menu of data) {
+                    menu.gfx = new ig.Image(menu.gfx);
+                    if (menu.circuitIconGfx != null) {
+                        menu.circuitIconGfx = new ig.Image(menu.circuitIconGfx);
+                    }
+                    this.configs.set(menu.name, menu);
                 }
-            });
+            },
+
+            modelChanged(model, event) {
+                if (model === sc.model.player && event === sc.PLAYER_MSG.CONFIG_CHANGED) {
+                    // config can be null if it wasn't found
+                    this.currentConfig = this.configs.get(sc.model.player.name);
+                }
+            },
         });
-    }
 
-    async _createCustomMenu() {
-        const img = new ig.Image;
-        const baseImage = await ImageUtils.loadImage("media/gui/menu.png");
+        sc.menuUiReplacer = new sc.MenuUiReplacer();
+    });
 
-        img.width = baseImage.width;
-        img.height = baseImage.height;
-        const settings = {
-            width: baseImage.width,
-            height: baseImage.height,
-            clearInstructions: [{
-                x: 280,
-                y: 424,
-                w: 16,
-                h: 11
-            }, {
-                x: 280,
-                y: 472,
-                w: 126,
-                h: 35
-            }]
-        };
+ig.module('menu-ui-replacer.main-menu')
+    .requires('game.feature.menu.gui.main-menu', 'menu-ui-replacer')
+    .defines(() => {
+        sc.MainMenu.LeaLarge.inject({
+            updateDrawables(renderer) {
+                const config = sc.menuUiReplacer.currentConfig;
+                if (config == null) return this.parent(renderer);
 
-        const modifiedImage = await this._createTemplateImage(baseImage, settings);
-        img.data = modifiedImage;
-        return img;
-    }
+                const gfx = config.gfx;
+                const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.Large;
+                renderer.addDraw().setGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
+            },
+        });
 
+        sc.MainMenu.LeaSmall.inject({
+            updateDrawables(renderer) {
+                const config = sc.menuUiReplacer.currentConfig;
+                if (config == null) return this.parent(renderer);
 
-    async _createTemplateImage(baseImage, settings) {
-        const canvas = document.createElement("canvas");
+                const gfx = config.gfx;
+                const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.Small;
+                renderer.addDraw().setGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
+            },
+        });
+    });
 
-        canvas.width = settings.width;
-        canvas.height = settings.height;
-        const ctx = canvas.getContext("2d");
+ig.module('menu-ui-replacer.player-stats-boxes')
+    .requires(
+        'game.feature.menu.gui.item.item-status-default',
+        'game.feature.menu.gui.status.status-view-main',
+        'game.feature.menu.gui.menu-misc',
+        'menu-ui-replacer',
+    )
+    .defines(() => {
+        function updateDrawables(renderer) {
+            sc.MenuPanel.prototype.updateDrawables.call(this, renderer);
 
-        ctx.drawImage(baseImage, 0, 0);
+            const config = sc.menuUiReplacer.currentConfig;
+            if (config != null) {
+                const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.Head;
+                renderer.addGfx(config.gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
+            } else {
+                renderer.addGfx(this.menuGfx, 0, 0, 280, 472, 126, 35);
+            }
 
-        for (const { x, y, w, h } of settings.clearInstructions) {
-            ctx.clearRect(x, y, w, h);
+            const elementOffset = sc.model.player.currentElementMode * 24;
+            renderer.addGfx(this.statusGfx, 64, 5, 104, 32 + elementOffset, 24, 24);
         }
 
-        return await this.loadImage(canvas.toDataURL("image/png"));
-    }
+        sc.ItemStatusDefault.inject({ updateDrawables });
+        sc.StatusViewMainParameters.inject({ updateDrawables });
+    });
 
-    async loadImage(src) {
-        let imgData = new Image;
+ig.module('menu-ui-replacer.map-menu')
+    .requires(
+        'game.feature.menu.gui.map.map-worldmap',
+        'game.feature.menu.gui.map.map-misc',
+        'game.feature.player.player-model',
+        'menu-ui-replacer',
+    )
+    .defines(() => {
+        sc.AreaButton.inject({
+            updateDrawables(renderer) {
+                const config = sc.menuUiReplacer.currentConfig;
+                if (config == null) return this.parent(renderer);
 
+                const { activeArea } = this;
+                this.activeArea = false;
+                this.parent(renderer);
+                this.activeArea = activeArea;
 
-        await new Promise((resolve, reject) => {
-            imgData.onload = () => {
-                resolve();
-            };
+                if (activeArea) {
+                    renderer.addGfx(this.gfx, 1, 2, 304, 440, 3, 3);
 
-            imgData.onerror = () => {
-                reject();
-            };
-
-            imgData.src = src;
+                    const gfx = config.gfx;
+                    const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.AreaButton;
+                    renderer.addGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
+                }
+            },
         });
-        return imgData;
-    }
-}
+
+        sc.MapFloorButtonContainer.inject({
+            originalCopy: null,
+
+            init(...args) {
+                this.parent(...args);
+                this.leaIconOriginal = this.leaIcon;
+                this._updateLeaIcon();
+            },
+
+            addObservers(...args) {
+                this.parent(...args);
+                sc.Model.addObserver(sc.model.player, this);
+            },
+
+            removeObservers(...args) {
+                this.parent(...args);
+                sc.Model.removeObserver(sc.model.player, this);
+            },
+
+            modelChanged(model, event) {
+                this.parent(model, event);
+                if (model === sc.model.player && event === sc.PLAYER_MSG.CONFIG_CHANGED) {
+                    this._updateLeaIcon();
+                }
+            },
+
+            _updateLeaIcon() {
+                this.leaIcon.doStateTransition('HIDDEN', true);
+
+                const config = sc.menuUiReplacer.currentConfig;
+                if (config != null) {
+                    const { offX, offY, sizeX, sizeY } = config.MapFloorButtonContainer;
+                    this.leaIcon = new ig.ImageGui(config.gfx, offX, offY, sizeX, sizeY);
+                    this.leaIcon.hook.transitions = this.leaIconOriginal.hook.transitions;
+                } else {
+                    this.leaIcon = this.leaIconOriginal;
+                }
+
+                this._createButtons(true);
+            },
+        });
+    });
+
+ig.module('menu-ui-replacer.social-menu')
+    .requires('game.feature.menu.gui.social.social-misc')
+    .defines(() => {
+        sc.SocialPartyBox.inject({
+            updatePartyLeader() {
+                const oldLeader = this.members[0];
+                oldLeader.hide(true);
+                this.removeChildGui(oldLeader);
+
+                const newLeader = new sc.SocialPartyMember(true, sc.model.player);
+                if (this.isHidden) {
+                    newLeader.hide(true);
+                } else {
+                    newLeader.show(true);
+                }
+
+                this.members[0] = newLeader;
+                this.insertChildGui(newLeader);
+            },
+
+            show(...args) {
+                this.parent(...args);
+                this.isHidden = false;
+            },
+
+            hide(...args) {
+                this.parent(...args);
+                this.isHidden = true;
+            },
+        });
+
+        sc.SocialMenu.inject({
+            addObservers() {
+                this.parent();
+                sc.Model.addObserver(sc.model.player, this);
+            },
+
+            removeObservers() {
+                this.parent();
+                sc.Model.removeObserver(sc.model.player, this);
+            },
+
+            modelChanged(model, event) {
+                this.parent(model, event);
+                if (model === sc.model.player && event === sc.PLAYER_MSG.CONFIG_CHANGED) {
+                    this.party.updatePartyLeader();
+                }
+            },
+        });
+    });
+
+ig.module('menu-ui-replacer.circuit-icons')
+    .requires('game.feature.menu.gui.circuit.circuit-effect-display')
+    .defines(() => {
+        function updateDrawables(renderer) {
+            const originalIcons = this.icons;
+
+            const config = sc.menuUiReplacer.currentConfig;
+            if (config != null && config.circuitIconGfx != null) {
+                this.icons = config.circuitIconGfx;
+            }
+
+            this.parent(renderer);
+            this.icons = originalIcons;
+        }
+
+        sc.CircuitTreeDetail.Node.inject({ updateDrawables });
+        sc.CircuitSwapBranchesInfoBox.Skill.inject({ updateDrawables });
+    });
+
+ig.module('menu-ui-replacer.status-menu')
+    .requires('game.feature.menu.gui.status.status-view-combat-arts')
+    .defines(() => {
+        sc.StatusViewCombatArtsEntry.inject({
+            updateDrawables(renderer) {
+                const config = sc.menuUiReplacer.currentConfig;
+                this.icon.image =
+                    config != null && config.circuitIconGfx != null
+                        ? config.circuitIconGfx
+                        : this.skillIcons;
+
+                this.parent(renderer);
+            },
+        });
+    });
