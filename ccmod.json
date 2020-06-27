@@ -1,7 +1,8 @@
 {
-	"name": "party-player",
+	"id": "party-player",
 	"version": "1.0.0",
 	"description": "Add Characters as Party or Players",
 	"module": true,
-	"postload" : "postload.js"
+	"postload": "postload.js",
+	"poststart": "poststart.js"
 }
