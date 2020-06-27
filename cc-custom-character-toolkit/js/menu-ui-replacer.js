@@ -32,7 +32,7 @@ ig.module('menu-ui-replacer')
         });
 
         sc.PlayerConfig.inject({
-            init: function (name) {
+            init: function(name) {
                 this.parent.apply(this, arguments);
                 this.setupExtendableHeads();
             },
@@ -56,7 +56,7 @@ ig.module('menu-ui-replacer')
                 });
             }
         });
-        ig.addGameAddon(function () {
+        ig.addGameAddon(function() {
             return sc.menuUiReplacer = new sc.MenuUiReplacer;
         });
     });
