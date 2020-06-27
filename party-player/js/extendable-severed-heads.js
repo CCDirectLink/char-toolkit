@@ -101,7 +101,9 @@ ig.module('extendable-severed-heads')
                     onLoadableComplete: (success, loadable) => {
                         if (!success) return;
                         const id = this.character.name;
-                        const { indexes } = loadable;
+                        const {
+                            indexes
+                        } = loadable;
                         if (id in indexes) this.headIdx = indexes[id];
                     },
                 });
