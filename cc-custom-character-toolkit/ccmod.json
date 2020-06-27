@@ -2,6 +2,10 @@
     "id": "cc-custom-character-toolkit",
     "version": "1.5.0",
     "description": "Add Characters as Party or Players",
+    "main": "main.js",
     "postload": "postload.js",
-    "poststart": "poststart.js"
+    "poststart": "poststart.js",
+    "dependencies": {
+        "utility-resource-organizer": "0.1.0"
+    }
 }
