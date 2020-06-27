@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "format": "npm run minify-json && npm run json-beautify && npm run js-beautify",
-    "minify-json": "minify-json ./mirabelle/",
+    "minify-json": "minify-json ./party-player/",
     "js-beautify": "js-beautify -js -q -r -f ./party-player/**/*.js",
     "json-beautify": "js-beautify -js -r -f ./party-player/**/*.json"
   },
