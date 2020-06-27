@@ -110,30 +110,3 @@ ig.module('extendable-severed-heads')
             },
         });
     });
-
-ig.module('extendable-severed-heads.save-slot-gui-party')
-    .requires('extendable-severed-heads', 'game.feature.menu.gui.save.save-misc')
-    .defines(() => {
-        sc.SaveSlotParty.inject({
-            setParty(save) {
-                this.party[0] = sc.party.models[save.player.playerConfig].getHeadIdx();
-                return this.parent.apply(this, arguments);
-            },
-        });
-    });
-
-ig.module('extendable-severed-heads.combat-hud')
-    .requires('extendable-severed-heads', 'game.feature.gui.hud.combat-hud')
-    .defines(() => {
-        sc.CombatUpperHud.inject({
-            init() {
-                this.parent();
-                const { pvp } = this.sub;
-                const renderHeads = pvp._renderHeads;
-                pvp._renderHeads = function(_renderer, _x, left, heads) {
-                    if (left) heads[0] = sc.model.player.config.headIdx;
-                    return renderHeads.apply(this, arguments);
-                };
-            },
-        });
-    });
