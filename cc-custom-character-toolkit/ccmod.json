@@ -1,5 +1,5 @@
 {
-    "id": "party-player",
+    "id": "cc-custom-character-toolkit",
     "version": "1.0.0",
     "description": "Add Characters as Party or Players",
     "postload": "postload.js",

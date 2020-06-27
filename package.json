@@ -4,10 +4,11 @@
   "description": "[Broken] Do not use.",
   "main": "index.js",
   "scripts": {
+    "gen-post": "node scripts/generate-postload.js",
     "format": "npm run minify-json && npm run json-beautify && npm run js-beautify",
-    "minify-json": "minify-json ./party-player/",
-    "js-beautify": "js-beautify -js -q -r -f ./party-player/**/*.js",
-    "json-beautify": "js-beautify -js -r -f ./party-player/**/*.json"
+    "minify-json": "minify-json ./cc-custom-character-toolkit/",
+    "js-beautify": "js-beautify -js -q -r -f ./cc-custom-character-toolkit/**/*.js",
+    "json-beautify": "js-beautify -js -r -f ./cc-custom-character-toolkit/**/*.json"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
   },
   "homepage": "https://github.com/CCDirectLink/party-player#readme",
   "dependencies": {
+    "@babel/core": "^7.10.3",
     "js-beautify": "^1.11.0",
     "minify-json": "^1.0.0"
   }
