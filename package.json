@@ -1,0 +1,22 @@
+{
+  "name": "cc-custom-character-toolkit",
+  "version": "1.0.0",
+  "description": "[Broken] Do not use.",
+  "main": "index.js",
+  "scripts": {
+    "format": "npm run minify-json && npm run json-beautify && npm run js-beautify",
+    "minify-json": "minify-json ./mirabelle/",
+    "js-beautify": "js-beautify -js -q -r -f ./party-player/**/*.js",
+    "json-beautify": "js-beautify -js -r -f ./party-player/**/*.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CCDirectLink/party-player.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CCDirectLink/party-player/issues"
+  },
+  "homepage": "https://github.com/CCDirectLink/party-player#readme"
+}
