@@ -6,6 +6,6 @@
     "postload": "postload.js",
     "poststart": "poststart.js",
     "dependencies": {
-        "utility-resource-organizer": "1.0.0"
+        "utility-resource-organizer": "1.x.x"
     }
 }
