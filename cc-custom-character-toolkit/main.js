@@ -5,7 +5,7 @@ export default class CustomCharacterToolKit {
         this.configs = [];
     }
 
-    async preload() {
+    async registerResourceListener() {
         await UtilityResourceManager.addResourceListener('menu-ui-replacer', async (data) => {
             if (data.type === 'generator') {
                 const generator = data.data;
@@ -14,7 +14,9 @@ export default class CustomCharacterToolKit {
                 await this.addMenuConfig(data.data);
             }
         });
+    }
 
+    async preload() {
         ccmod3.resources.imagePatches.add('media/gui/severed-heads.png', (baseCanvas) => {
             if (this.headGfxConfigs.length === 0) {
                 return;
@@ -44,6 +46,7 @@ export default class CustomCharacterToolKit {
             return canvas;
         });
     }
+    
     async prestart() {
         for (const config of this.configs) {
             if (!sc.PARTY_OPTIONS.includes(config.name)) {
