@@ -41,7 +41,7 @@ ig.module('menu-ui-replacer.social-menu')
             },
 
             modelChanged(model, event) {
-                this.parent(model, event);
+                this.parent(...arguments);
                 if (model === sc.model.player && event === sc.PLAYER_MSG.CONFIG_CHANGED) {
                     this.party.updatePartyLeader();
                 }
