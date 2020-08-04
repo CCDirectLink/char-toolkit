@@ -14,7 +14,7 @@ ig.module("custom-character-toolkit.common-event").requires("game.feature.common
             let noContactIndex = i;
             // we have the index now find all the -contact and splice it
             ++i;
-            for (; i < socialActions.length;i++) {
+            for (; i < socialActions.length; i++) {
                 if (socialActions[i].name.endsWith("-contact")) {
                     socialActions.splice(noContactIndex, 0, socialActions.splice(i, 1).pop());
                     noContactIndex++;
@@ -23,4 +23,3 @@ ig.module("custom-character-toolkit.common-event").requires("game.feature.common
         }
     });
 });
-
