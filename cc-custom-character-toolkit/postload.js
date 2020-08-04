@@ -1,3 +1,5 @@
+import "./js/custom-character-toolkit/common-event.js";
+
 import "./js/extendable-severed-heads/save-slot-gui-party.js";
 
 import "./js/menu-ui-replacer/circuit-icons.js";
