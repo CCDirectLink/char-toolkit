@@ -5,13 +5,13 @@ export default class CustomCharacterToolKit {
         this.configs = [];
     }
 
-    async registerResourceListener() {
-        await UtilityResourceManager.addResourceListener('menu-ui-replacer', async (data) => {
+    async registerResourceListeners() {
+        await UtilityResourceManager.addResourceListener('custom-character-config', async (data) => {
             if (data.type === 'generator') {
                 const generator = data.data;
-                await this.addMenuConfig(await generator());
+                await this.addConfig(await generator());
             } else {
-                await this.addMenuConfig(data.data);
+                await this.addConfig(data.data);
             }
         });
     }
@@ -61,21 +61,21 @@ export default class CustomCharacterToolKit {
         }
     }
 
-    async addMenuConfig({ mod, menuConfig }) {
-        const idx = this.configs.push(menuConfig) - 1;
+    async addConfig({ mod, config }) {
+        const idx = this.configs.push(config) - 1;
         this.indexes[name] = idx;
 
-        if (menuConfig.gfx) {
-            menuConfig.gfx = await this.fetchImage(`/${mod.baseDirectory}assets/${menuConfig.gfx}`);
+        if (config.gfx) {
+            config.gfx = await this.fetchImage(`/${mod.baseDirectory}assets/${config.gfx}`);
         }
 
-        if (menuConfig.circuitIconGfx) {
-            menuConfig.circuitIconGfx = await this.fetchImage(`/${mod.baseDirectory}assets/${menuConfig.circuitIconGfx}`);
+        if (config.circuitIconGfx) {
+            config.circuitIconGfx = await this.fetchImage(`/${mod.baseDirectory}assets/${config.circuitIconGfx}`);
         }
 
-        if (menuConfig['severed-head']) {
-            menuConfig['severed-head'] = await this.fetchImage(`/${mod.baseDirectory}assets/${menuConfig['severed-head']}`)
-            this.headGfxConfigs.push(menuConfig);
+        if (config['severed-head']) {
+            config['severed-head'] = await this.fetchImage(`/${mod.baseDirectory}assets/${config['severed-head']}`)
+            this.headGfxConfigs.push(config);
         }
     }
 
