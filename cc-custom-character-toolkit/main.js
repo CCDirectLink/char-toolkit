@@ -17,7 +17,7 @@ export default class CustomCharacterToolKit {
     }
 
     async preload() {
-        ccmod3.resources.imagePatches.add('media/gui/severed-heads.png', (baseCanvas) => {
+        ccmod.resources.imagePatches.add('media/gui/severed-heads.png', (baseCanvas) => {
             if (this.headGfxConfigs.length === 0) {
                 return;
             }
