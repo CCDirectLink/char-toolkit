@@ -49,7 +49,7 @@ export default class CustomCharacterToolKit {
     
     async prestart() {
         for (const config of this.configs) {
-            if (!sc.PARTY_OPTIONS.includes(config.name)) {
+            if (config.player && !sc.PARTY_OPTIONS.includes(config.name)) {
                 sc.PARTY_OPTIONS.push(config.name);
             }
         }
@@ -64,6 +64,11 @@ export default class CustomCharacterToolKit {
     async addConfig({ mod, config }) {
         const idx = this.configs.push(config) - 1;
         this.indexes[name] = idx;
+
+        // assume that there is a player entry
+        if (config.player == null) {
+            config.player = true;
+        }
 
         if (config.gfx) {
             config.gfx = await this.fetchImage(`/${mod.baseDirectory}assets/${config.gfx}`);
