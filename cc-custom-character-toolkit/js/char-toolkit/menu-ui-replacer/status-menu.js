@@ -5,9 +5,9 @@ ig.module('char-toolkit.menu-ui-replacer.status-menu')
             updateDrawables(renderer) {
                 const config = sc.menuUiReplacer.currentConfig;
                 this.icon.image =
-                    config != null && config.circuitIconGfx != null
-                        ? config.circuitIconGfx
-                        : this.skillIcons;
+                    config != null && config.circuitIconGfx != null ?
+                    config.circuitIconGfx :
+                    this.skillIcons;
 
                 this.parent(renderer);
             },

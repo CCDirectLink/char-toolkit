@@ -46,7 +46,7 @@ export default class CustomCharacterToolKit {
             return canvas;
         });
     }
-    
+
     async prestart() {
         for (const config of this.configs) {
             if (config.player && !sc.PARTY_OPTIONS.includes(config.name)) {
@@ -61,7 +61,10 @@ export default class CustomCharacterToolKit {
         }
     }
 
-    async addConfig({ mod, config }) {
+    async addConfig({
+        mod,
+        config
+    }) {
         const idx = this.configs.push(config) - 1;
         this.indexes[name] = idx;
 

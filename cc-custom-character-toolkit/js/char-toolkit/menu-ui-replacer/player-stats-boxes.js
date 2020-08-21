@@ -11,7 +11,14 @@ ig.module('char-toolkit.menu-ui-replacer.player-stats-boxes')
 
             const config = sc.menuUiReplacer.currentConfig;
             if (config != null) {
-                const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.Head;
+                const {
+                    gfxOffX,
+                    gfxOffY,
+                    offX,
+                    offY,
+                    sizeX,
+                    sizeY
+                } = config.Head;
                 renderer.addGfx(config.gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
             } else {
                 renderer.addGfx(this.menuGfx, 0, 0, 280, 472, 126, 35);
@@ -21,6 +28,10 @@ ig.module('char-toolkit.menu-ui-replacer.player-stats-boxes')
             renderer.addGfx(this.statusGfx, 64, 5, 104, 32 + elementOffset, 24, 24);
         }
 
-        sc.ItemStatusDefault.inject({ updateDrawables });
-        sc.StatusViewMainParameters.inject({ updateDrawables });
+        sc.ItemStatusDefault.inject({
+            updateDrawables
+        });
+        sc.StatusViewMainParameters.inject({
+            updateDrawables
+        });
     });

@@ -11,7 +11,9 @@ ig.module('char-toolkit.menu-ui-replacer.map-menu')
                 const config = sc.menuUiReplacer.currentConfig;
                 if (config == null) return this.parent(renderer);
 
-                const { activeArea } = this;
+                const {
+                    activeArea
+                } = this;
                 this.activeArea = false;
                 this.parent(renderer);
                 this.activeArea = activeArea;
@@ -20,7 +22,14 @@ ig.module('char-toolkit.menu-ui-replacer.map-menu')
                     renderer.addGfx(this.gfx, 1, 2, 304, 440, 3, 3);
 
                     const gfx = config.gfx;
-                    const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.AreaButton;
+                    const {
+                        gfxOffX,
+                        gfxOffY,
+                        offX,
+                        offY,
+                        sizeX,
+                        sizeY
+                    } = config.AreaButton;
                     renderer.addGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
                 }
             },
@@ -57,7 +66,12 @@ ig.module('char-toolkit.menu-ui-replacer.map-menu')
 
                 const config = sc.menuUiReplacer.currentConfig;
                 if (config != null) {
-                    const { offX, offY, sizeX, sizeY } = config.MapFloorButtonContainer;
+                    const {
+                        offX,
+                        offY,
+                        sizeX,
+                        sizeY
+                    } = config.MapFloorButtonContainer;
                     this.leaIcon = new ig.ImageGui(config.gfx, offX, offY, sizeX, sizeY);
                     this.leaIcon.hook.transitions = this.leaIconOriginal.hook.transitions;
                 } else {
