@@ -1,5 +1,5 @@
-ig.module('menu-ui-replacer.main-menu')
-    .requires('game.feature.menu.gui.main-menu', 'menu-ui-replacer')
+ig.module('char-toolkit.menu-ui-replacer.main-menu')
+    .requires('game.feature.menu.gui.main-menu', 'char-toolkit.menu-ui-replacer')
     .defines(() => {
         sc.MainMenu.LeaLarge.inject({
             updateDrawables(renderer) {

@@ -1,4 +1,4 @@
-ig.module('menu-ui-replacer')
+ig.module('char-toolkit.menu-ui-replacer')
     .requires('impact.base.impact', 'game.feature.player.player-model')
     .defines(() => {
 

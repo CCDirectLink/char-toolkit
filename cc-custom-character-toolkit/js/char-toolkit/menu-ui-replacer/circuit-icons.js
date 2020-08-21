@@ -1,4 +1,4 @@
-ig.module('menu-ui-replacer.circuit-icons')
+ig.module('char-toolkit.menu-ui-replacer.circuit-icons')
     .requires('game.feature.menu.gui.circuit.circuit-effect-display')
     .defines(() => {
         function updateDrawables(renderer) {

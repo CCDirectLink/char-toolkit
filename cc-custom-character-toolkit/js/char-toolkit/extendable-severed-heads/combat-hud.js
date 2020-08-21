@@ -1,4 +1,4 @@
-ig.module('extendable-severed-heads.save-slot-gui-party')
+ig.module('char-toolkit.extendable-severed-heads.save-slot-gui-party')
     .requires('game.feature.menu.gui.save.save-misc')
     .defines(() => {
         sc.SaveSlotParty.inject({

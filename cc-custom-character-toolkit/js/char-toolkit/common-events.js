@@ -1,4 +1,4 @@
-ig.module("custom-character-toolkit.common-event").requires("game.feature.common-event.common-event").defines(function() {
+ig.module("char-toolkit.common-events").requires("game.feature.common-event.common-event").defines(function() {
     sc.CommonEvents.inject({
         _loadCommonEvents: function() {
             // let it do its thing

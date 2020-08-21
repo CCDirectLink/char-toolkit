@@ -1,9 +1,9 @@
-ig.module('menu-ui-replacer.player-stats-boxes')
+ig.module('char-toolkit.menu-ui-replacer.player-stats-boxes')
     .requires(
         'game.feature.menu.gui.item.item-status-default',
         'game.feature.menu.gui.status.status-view-main',
         'game.feature.menu.gui.menu-misc',
-        'menu-ui-replacer',
+        'char-toolkit.menu-ui-replacer',
     )
     .defines(() => {
         function updateDrawables(renderer) {

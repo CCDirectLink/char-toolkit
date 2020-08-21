@@ -1,4 +1,4 @@
-ig.module('menu-ui-replacer.social-menu')
+ig.module('char-toolkit.menu-ui-replacer.social-menu')
     .requires('game.feature.menu.gui.social.social-misc')
     .defines(() => {
         sc.SocialPartyBox.inject({

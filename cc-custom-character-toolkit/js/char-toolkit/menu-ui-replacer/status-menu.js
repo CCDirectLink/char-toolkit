@@ -1,4 +1,4 @@
-ig.module('menu-ui-replacer.status-menu')
+ig.module('char-toolkit.menu-ui-replacer.status-menu')
     .requires('game.feature.menu.gui.status.status-view-combat-arts')
     .defines(() => {
         sc.StatusViewCombatArtsEntry.inject({

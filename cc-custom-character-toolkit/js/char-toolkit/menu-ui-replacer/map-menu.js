@@ -1,9 +1,9 @@
-ig.module('menu-ui-replacer.map-menu')
+ig.module('char-toolkit.menu-ui-replacer.map-menu')
     .requires(
         'game.feature.menu.gui.map.map-worldmap',
         'game.feature.menu.gui.map.map-misc',
         'game.feature.player.player-model',
-        'menu-ui-replacer',
+        'char-toolkit.menu-ui-replacer',
     )
     .defines(() => {
         sc.AreaButton.inject({
