@@ -13,6 +13,10 @@ ig.module('char-toolkit.menu-ui-replacer.circuit-icons')
             this.icons = originalIcons;
         }
 
-        sc.CircuitTreeDetail.Node.inject({ updateDrawables });
-        sc.CircuitSwapBranchesInfoBox.Skill.inject({ updateDrawables });
+        sc.CircuitTreeDetail.Node.inject({
+            updateDrawables
+        });
+        sc.CircuitSwapBranchesInfoBox.Skill.inject({
+            updateDrawables
+        });
     });

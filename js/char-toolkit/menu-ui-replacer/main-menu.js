@@ -7,7 +7,14 @@ ig.module('char-toolkit.menu-ui-replacer.main-menu')
                 if (config == null) return this.parent(renderer);
 
                 const gfx = config.gfx;
-                const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.Large;
+                const {
+                    gfxOffX,
+                    gfxOffY,
+                    offX,
+                    offY,
+                    sizeX,
+                    sizeY
+                } = config.Large;
                 renderer.addDraw().setGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
             },
         });
@@ -18,7 +25,14 @@ ig.module('char-toolkit.menu-ui-replacer.main-menu')
                 if (config == null) return this.parent(renderer);
 
                 const gfx = config.gfx;
-                const { gfxOffX, gfxOffY, offX, offY, sizeX, sizeY } = config.Small;
+                const {
+                    gfxOffX,
+                    gfxOffY,
+                    offX,
+                    offY,
+                    sizeX,
+                    sizeY
+                } = config.Small;
                 renderer.addDraw().setGfx(gfx, gfxOffX, gfxOffY, offX, offY, sizeX, sizeY);
             },
         });
