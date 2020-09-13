@@ -1,7 +1,6 @@
 {
-  "name": "cc-custom-character-toolkit",
+  "name": "char-toolkit",
   "version": "1.0.0",
-  "description": "[Broken] Do not use.",
   "main": "index.js",
   "scripts": {
     "gen-post": "node scripts/generate-postload.js",
