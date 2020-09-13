@@ -6,9 +6,9 @@
   "scripts": {
     "gen-post": "node scripts/generate-postload.js",
     "format": "npm run minify-json && npm run json-beautify && npm run js-beautify",
-    "minify-json": "minify-json ./cc-custom-character-toolkit/",
-    "js-beautify": "js-beautify -js -q -r -f ./cc-custom-character-toolkit/**/*.js",
-    "json-beautify": "js-beautify -js -r -f ./cc-custom-character-toolkit/**/*.json"
+    "minify-json": "minify-json ./",
+    "js-beautify": "js-beautify -js -q -r -f ./**/*.js",
+    "json-beautify": "js-beautify -js -r -f ./**/*.json"
   },
   "repository": {
     "type": "git",
