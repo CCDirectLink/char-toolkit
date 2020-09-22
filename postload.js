@@ -1,5 +1,7 @@
 import "./js/char-toolkit/common-events.js";
 
+import "./js/char-toolkit/extendable-severed-heads/combat-hud.js";
+
 import "./js/char-toolkit/extendable-severed-heads/save-slot-gui-party.js";
 
 import "./js/char-toolkit/menu-ui-replacer/circuit-icons.js";
