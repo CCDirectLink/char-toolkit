@@ -1,7 +1,6 @@
 export default class CustomCharacterToolKit {
     constructor() {
         this.headGfxConfigs = [];
-        this.indexes = {};
         this.configs = [];
     }
 
@@ -57,7 +56,9 @@ export default class CustomCharacterToolKit {
 
     async poststart() {
         for (const config of this.configs) {
-            sc.menuUiReplacer.addConfig(config);
+            if (config.gfx) {
+                sc.menuUiReplacer.addConfig(config);
+            }
         }
     }
 
@@ -65,9 +66,7 @@ export default class CustomCharacterToolKit {
         mod,
         config
     }) {
-        const idx = this.configs.push(config) - 1;
-        this.indexes[name] = idx;
-
+        this.configs.push(config);
         // assume that there is a player entry
         if (config.player == null) {
             config.player = true;
