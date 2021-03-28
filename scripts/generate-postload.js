@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const babel = require('@babel/core');
 
-const modBasePath = path.join(process.cwd(), '/');
+const modBasePath = path.join(process.cwd(), '/src/');
 const jsPath = path.join(modBasePath, 'js/');
 
 // extract all files in the js directory
