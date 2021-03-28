@@ -6,8 +6,8 @@
         "gen-post": "node scripts/generate-postload.js",
         "format": "npm run minify-json && npm run json-beautify && npm run js-beautify",
         "minify-json": "minify-json ./",
-        "js-beautify": "js-beautify -js -q -r -f ./**/*.js",
-        "json-beautify": "js-beautify -js -r -f ./**/*.json"
+        "js-beautify": "js-beautify -js -q -r -f ./src/**/*.js",
+        "json-beautify": "js-beautify -js -r -f ./src/**/*.json"
     },
     "repository": {
         "type": "git",
